@@ -1,0 +1,44 @@
+1) ORDER BY <campo1> ASC/DESC, <campo2> ASC/DESC, ..., <campoN> ASC/DESC;   ---> ASC e' ordine ascendente, DESC e' ordine discendente
+
+   Osservazione: si possono inserire piu' campi rispetto cui ordinare
+
+
+2) The RIGHT() function extracts a number of characters from a string (starting from right).
+
+   RIGHT(string_field, number_of_chars)
+
+   e.g. --> SELECT RIGHT(CustomerName, 5) AS ExtractString FROM Customers; 
+
+3) The LEFT() function extracts a number of characters from a string (starting from left).
+
+   LEFT(string_field, number_of_chars)
+
+   e.g. --> SELECT LEFT(CustomerName, 5) AS ExtractString FROM Customers; 
+
+
+   Osservazione: si puo' usare anche con ORDER BY ---> SELECT CustomerName From Customers ORDER BY RIGHT(CustomerName, 3) ASC;
+
+
+
+4) La funzione LENGTH() estrae il numero di caratteri da una stringa
+
+   LENGTH(string_field)
+
+   e.g. ----> SELECT LENGTH(CustomerName) AS LunghezzaNome FROM Customers;
+
+
+5) La funzione AVG() restituisce la media dei valori di una colonna
+
+   AVG(number_field)
+
+   e.g. ----> SELECT AVG(population) AS average_population FROM City;
+
+
+6) La keyword LIMIT limita il numero di righe restituite dalla query, va messa alla fine della query
+   
+   LIMIT <number_of_desired_rows_to_return>
+
+   e.g. ----> SELECT CustomerName FROM Customers LIMIT 10;
+
+
+

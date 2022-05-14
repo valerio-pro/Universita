@@ -1,0 +1,20 @@
+
+db.runCommand({	
+	insert: "Film",
+	documents: [
+	    {titolo: "provaTitolo", dataUscita: "1982-01-01T00:00:00+00:00", durata: 110,
+	    incasso: 560000, _idRegista: 2, studio: "LucasFilms", tipo: "L", formato: "2D",
+	    contratti: [{nomeAzienda: "provaAzienda", valoreContratto: 89000}]},
+
+	    {titolo: "provaTitolo2", dataUscita: "1983-01-01T00:00:00+00:00", durata: 88,
+	    incasso: 780000, _idRegista: 3, studio: "provaStudio2", tipo: "C", formato: "2D",
+	    contratti: [{nomeAzienda: "provaAzienda2", valoreContratto: 99000},
+	    {nomeAzienda: "provaAzienda3", valoreContratto: 119000}]},
+
+    	    {titolo: "provaTitolo3", dataUscita: "1984-01-01T00:00:00+00:00", durata: 168,
+	    incasso: 1400000, _idRegista: 4, studio: "provaStudio3", tipo: "L", formato: "3D",
+	    contratti: [{nomeAzienda: "provaAzienda4", valoreContratto: 29000},
+	    {nomeAzienda: "provaAzienda5", valoreContratto: 239000}]}
+	    ], 
+		
+	    ordered: false})

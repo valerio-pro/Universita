@@ -1,0 +1,92 @@
+CONCATENA E SEPARA CIFRE DI NUMERI
+
+% concatena le singole cifre per ottenere un numero
+atom_concat(4,3,X), --> X='43'
+atom_number('43',Y). --> Y=43
+
+% estrarre le singole cifre 
+atom_concat(X,Y,43),atom_number(X,N),atom_number(Y,N1),!.
+
+% N e' un intero e il secondo argomento e' la lista delle cifre 
+splitRev(0,[]).
+splitRev(N,[A|As]):- N1 is floor(N/10), A is N mod 10, splitRev(N1,As).
+split(N,L1):- splitRev(N,L2), reverse(L1,L2),!.
+% osserva che e' consistente con numeri del tipo 000240
+
+--------------------------------------------
+
+MOLTIPLICAZIONE NUMERO A DUE CIFRE (terzo argomento e' risultato)
+
+moltiplicazione2(numero(B1,B3),numero(B2,B4),numero(A1,A3,C1)):-
+    num_not0(B1),num_not0(B2),num_not0(A1), % diverso da 0
+    num(B3),num(B4),num(A3),num(C1), % qualsiasi cifra da 0 a 9
+   
+    atom_concat(B1,B3,X),
+    atom_concat(B2,B4,Y),
+    atom_number(X,Xnum),
+    atom_number(Y,Ynum),
+    Cnum is Xnum*Ynum,
+    split(Cnum,L),
+    assign([A1,A3,C1],L).
+
+assign([X],[N]):- X=N.
+assign([A1|T],[H|T1]):-
+    A1=H,
+    assign(T,T1).
+
+---------------------------------------
+
+DIVISIONE TRA NUMERO A 3 CIFRE E NUMERO A 1 CIFRA (terzo argomento e' risultato)
+
+divisione3(numero(C1,B1,C1),numero(C3),numero(C4,A1)):-
+    num_not0(C1),num_not0(C3),not(C3==1),num_not0(C4),
+    num(B1),num(A1),
+    
+    atom_concat(C1,B1,Xt),atom_concat(Xt,C1,X),
+    atom_number(X,Xnum),
+    Y is Xnum mod C3, Y == 0,  % Y divisibile per Xnum, senza resto
+    Ynum is Xnum/C3,
+    split(Ynum,L),
+    assign([C4,A1],L).
+
+assign([X],[N]):- X=N.
+assign([A1|T],[H|T1]):-
+    A1=H,
+    assign(T,T1).
+
+-----------------------------------
+
+SOMMA IN COLONNA TRA CIFRE (terzo argomento e' risultato)
+
+somma(A,B,Ris,1):- Ris1 is A+B, Ris1>=10, Ris is Ris1-10.
+somma(A,B,Ris,0):- Ris1 is A+B, Ris1<10, Ris is Ris1.
+
+differenza(A,B,Ris,1):- A<B, Ris is A+10-B.
+differenza(A,B,Ris,0):- A>B, Ris is A-B.
+differenza(A,B,0,0):- A==B.
+
+somma_in_colonna1(numero(A1,A2,A3),numero(B1,B3),numero(C1,B1,C1)):-
+    num_not0(A1),num_not0(B1),num_not0(C1),
+    num(A2),num(A3),num(B3),num(B1),
+    somma(A3,B3,C1,Resto),
+    somma(A2,Resto,A2_tmp,Resto1),
+    somma(A2_tmp,B1,B1,Resto2),
+    somma(Resto1,Resto2,Resto3,0),
+    somma(A1,Resto3,C1,0).
+
+differenza_in_colonna1(numero(B1,B2),numero(B2,B4),numero(C3)):-
+    num_not0(B1),num_not0(B2),
+    num(B4),num(C3),
+    differenza(B2,B4,C3,Riporto),
+    B1_tmp is B1-Riporto,
+    differenza(B1_tmp,B2,0,0).
+
+differenza_in_colonna2(numero(C1,B2,C2),numero(A1,A3,C1),numero(C4,A1)):-
+    num_not0(C1),num_not0(A1),num_not0(C4),
+    num(B2),num(C2),num(A3),
+    differenza(C2,C1,A1,Riporto),
+    differenza(B2,Riporto,B2_tmp,0),
+    differenza(B2_tmp,A3,C4,Riporto1),
+    differenza(C1,Riporto1,C1_tmp,0),
+    differenza(C1_tmp,A1,0,0).
+

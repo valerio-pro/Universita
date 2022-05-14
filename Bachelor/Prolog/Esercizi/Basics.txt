@@ -1,0 +1,54 @@
+member1(X,[X|_]).
+member1(X,[_|T]):-
+    member1(X,T).
+
+reverse1([],[]).
+reverse1([H|T],RList):-
+    reverse1(T,RTail),
+    append(RTail,[H],RList).
+
+append1(L,[],L).
+append1([],L,L).
+append1([H|T1],L2,[H|T]):-
+    append1(T1,L2,T).
+
+
+permutazione([],[]).
+permutazione([H|L],LPermpiuH):-
+	permutazione(L,LPerm),
+	lista_con_elemento_in_piu(H,LPerm,LPermpiuH),.
+
+lista_con_elemento_in_piu(X,L,[X|L]).
+lista_con_elemento_in_piu(X,[Y|L],[Y|Lcon]):-
+	lista_con_elemento_in_piu(X,L,Lcon).
+
+
+my_not(P):-
+	P,!,fail.
+
+my_not(_).
+
+
+subset([], []).    % tutti i possibili sottoinsiemi di una lista
+subset([H|Tail], [H|NTail]):-
+  subset(Tail, NTail).
+subset([_|Tail], NTail):-
+  subset(Tail, NTail).
+
+
+allSubsetsOfList(List,Subsets):-
+    setof(Sub,subset(List,Sub),Subsets).
+
+
+
+length1([],0).
+length1([H|T],Len):-
+	length(T,Len1),
+	Len is Len1+1.
+
+sumNumbersList([H],H):- number(H),!.
+sumNumbersList([H|T],Sum):-
+    sumNumbersList(T,Sum1),
+    number(H),
+    Sum is Sum1+H,!.
+

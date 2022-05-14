@@ -1,0 +1,377 @@
+MAX E MIN DI UNA LISTA
+
+max(El,[El]).
+
+max(El,[H|T]):-
+    max(El1,T),  % El1 e' il massimo della coda
+    H >= El1,!,  % se H e' piu grande di El1 allora il massimo deve essere H
+    El = H.
+
+max(El,[_|T]):-   % altrimenti il massimo e' El1
+    max(El1,T),
+    El = El1.
+
+
+min(El,[El]).
+
+min(El,[H|T]):-
+    min(El1,T),  % El1 e' il minimo della coda
+    H =< El1,!,  % se H e' piu piccolo di El1 allora il minimo deve essere H
+    El = H.
+
+min(El,[_|T]):-   % altrimenti il minimo e' El1
+    min(El1,T),
+    El = El1.
+
+----------------------------------
+
+PALINDROMA
+
+palindroma([]).
+palindroma([_]):-!.
+
+palindroma([H|T]):-
+    last([H|T],Last),
+    delLast(T,Rest),
+    H==Last,
+    palindroma(Rest).
+
+
+delLast([],[]).
+delLast([_],[]):-!.
+
+delLast([H|T],Deleted):-        % cancellazione ultimo elemento lista
+    delLast(T,Deleted1),
+    append([H],Deleted1,Deleted).
+
+            
+last([X],X).                    % ottenere ultimo elemento di una lista
+last([_|T],Last):-
+    last(T,Last),!.
+
+--------------------------------
+
+SOMMA ELEMENTI DI UNA LISTA
+
+sumListElements([],0).
+sumListElements([H|T],S):-
+    sumListElements(T,S1),
+    S is S1+H.
+
+----------------------------------
+
+SOTTOLISTE DI N ELEMENTI CONTIGUI 
+
+sottoListeDiNContigui(L,SottoListe,N):-
+    bagof(SL,sottoLista(L,SL,N),SottoListe).
+
+sottoLista(L,SL,N):-
+    length(SL,N),      % length() e' built-in
+    append(Tmp,_,L),   % NB: niente caso base, esprimi la proprieta' che cerchi 
+    append(_,SL,Tmp).
+
+-----------------------------------
+
+LISTA ELEMENTI DUPLICATI (CON LISTA PRIVATA DI ELEMENTO)
+
+% listaElementiDuplicati(List,DuplicatesOfList)
+% List = [a,c,a,a,c,f,d,e,r,b,b], DuplicatesOfList = [a,c,b]
+
+listaPrivata(_,[],[]).  
+
+listaPrivata(El,[El|T],L):-   % El e' l'elemento che vogliamo togliere dalla lista in seconda
+    listaPrivata(El,T,L),!.   % posizione, la lista in terza posizione e' la lista 
+			      % senza tutte le occorrenze di El
+listaPrivata(El,[H|T],[H|TD]):-
+    not(El==H),
+    listaPrivata(El,T,TD).
+
+
+
+listaElementiDuplicati([],[]).
+
+listaElementiDuplicati([H|T],[H|TD]):-
+    member(H,T),!,
+    listaPrivata(H,[H|T],List1),
+    listaElementiDuplicati(List1,TD).
+
+listaElementiDuplicati([_|T],[HD|TD]):-
+    listaElementiDuplicati(T,[HD|TD]).
+
+-------------------------------------
+
+ANAGRAMMI DI UNA PAROLA (parola rappresentata come lista di atomi)
+
+anagrammi(Parola,ListaAnagrammi):-       % pattern setof/bagof
+    setof(Anag,anagramma(Parola,Anag),ListaAnagrammi).
+
+anagramma(Parola,Anagramma):-
+    permutation(Parola,Anagramma).
+
+------------------------------------
+
+LISTA ORDINATA
+
+ordinata([]).
+ordinata([_]).
+ordinata([H1,H2|T]):-     % ordinata(LO) e' vero se LO e' una lista ordinata
+    H1=<H2,
+    ordinata([H2|T]).
+
+listaOrdinata([],[]).
+listaOrdinata(L,LO):-     % L e' una lista e LO e' la lista L ordinata
+    permutation(L,LO),
+    ordinata(LO),!.
+
+-----------------------------------
+
+LIST TO SET (ELIMINANDO ANCHE LE PERMUTAZIONI)
+
+-----> il predicato built-in "list_to_set" e' gia' disponibile ma non toglie le permutazioni
+
+listToSet([],[]).
+listToSet([H|T],[H|TS]):-         % i due argomenti sono liste di liste
+    privataDi(H,[H|T],Res),!,
+    listToSet(Res,TS).
+
+
+privataDi(El,[El],[]).
+privataDi(El,[H],[H]):- not(El==H).
+
+
+privataDi(El,[El|T],Res):-
+    privataDi(El,T,Res),!.
+
+privataDi(El,[ElPermute|T],Res):-  % elimina anche permutazioni
+    permutation(El,ElPermute),
+    privataDi(El,T,Res),!.
+
+privataDi(El,[H|T],[H|TRes]):-
+    not(El==H),
+    privataDi(El,T,TRes).
+
+----------------------------------------
+
+SPLIT LIST
+
+split(List,N,L1,L2):-     % splitta la lista List in due sottoliste sull'indice N 
+    length(List,Length),
+    length(L1,N),
+    N1 is Length-N,
+    length(L2,N1),
+    append(L1,L2,List).
+    
+
+/** <examples>
+?- split([a,b,b,d,c,e,f,a,a,c],3,L1,L2).
+	L1 = [a, b, b],
+	L2 = [d, c, e, f, a, a, c]
+*/
+
+------------------------------------------
+
+SEQUENZA DI FIBONACCI 
+
+% PER OGNI CASO BASE USA IL CUT IN MODO CHE NON VENGANO REINSERITI
+% STESSI FATTI CON L'ASSERT. NON APPENA E' VERIFICATO UN FATTO
+% IL MOTORE SI FERMA GRAZIE AL CUT E NON CONTINUA A FARE RICERCA
+% E RE-ASSERIRE FATTI CHE GIA' SONO STATI VERIFICATI
+
+:- dynamic fibo/2.
+
+fibo(0,0):-!.
+fibo(1,1):-!.
+
+fibo(N,M):-
+    N1 is N-1,
+    fibo(N1,M1),
+    N2 is N-2,
+    fibo(N2,M2),!,
+    M is M1+M2,
+    asserta(fibo(N,M):-!).
+
+-------------------------------------------
+
+TUTTI I POSSIBILI SOTTOALBERI DALLA RADICE
+
+sottoAlberoDaRadice(t(R,[_|_]),t(R,[])).    % un sottoalbero che parte dalla radice e' la radice stessa
+sottoAlberoDaRadice(t(R,L),t(R,Ls)):-
+    lista_s_da_r(L,Ls).                % Ls deve essere la lista di sottoalberi di L
+						
+
+lista_s_da_r([],[]).
+lista_s_da_r([T|LT],[ST|LST]):-
+    sottoAlberoDaRadice(T,ST),
+    lista_s_da_r(LT,LST).
+
+sottoAlberiPossibiliDaRadice(T,STs):-
+    setof(ST,sottoAlberoDaRadice(T,ST),STs).
+
+-----------------------------------------
+
+VISITA DFS
+
+path(X,Y,[X,Y]):- 
+    edge(X,Y).
+
+path(X,Y,[X|Path]):-
+    edge(X,Z),
+    path(Z,Y,Path).
+
+----------------------------------------------
+
+CONCATENA E SEPARA CIFRE DI NUMERI
+
+% concatena cifre per ottenere un numero
+atom_concat(4,3,X), --> X='43'
+atom_number('43',Y). --> Y=43
+
+% estrarre le singole cifre 
+atom_concat(X,Y,43),atom_number(X,N),atom_number(Y,N1),!.
+
+
+% N e' un intero e il secondo argomento e' la lista delle cifre 
+% osserva che e' consistente con numeri del tipo 0002450
+
+splitRev(0,[]).  
+splitRev(N,[A|As]):- N1 is floor(N/10), A is N mod 10, splitRev(N1,As).
+split(N,L1):- splitRev(N,L2), reverse(L1,L2),!.
+
+--------------------------------------------
+
+COSTRUISCI SPAZIO
+
+% costruisciSpazio e' vero se List e' una lista semplice (non lista di liste), se N e' un intero e
+% se Spazio e' una lista di liste in cui ogni lista e' lunga N
+
+costruisciSpazio([],_,[]):- !.
+costruisciSpazio(List,N,[S|T]):-
+    length(S,N),
+    append(S,Tmp,List),
+    costruisciSpazio(Tmp,N,T).
+
+/** <examples>
+?- costruisciSpazio([1,2,3,4,5,6,7,8,9,10],2,Spazio).
+   -----> Spazio = [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]]
+*/
+
+----------------------------------------------------
+
+DECOSTRUISCI SPAZIO
+
+usa predicato built-in flatten(List,FlatList).
+
+------------------------------------------------------
+
+RIEMPI LISTA
+
+riempi_lista([],[],_).
+riempi_lista([H|T],L,X):-
+ 	var(H),
+	H = X,
+	riempi_lista(T,L1,X),
+	append([H],L1,L).
+
+genera_lista(L,N,X):-
+	length(L1,N),
+	riempi_lista(L1,L,X).
+
+-------------------------------------
+
+RINTRACCIA ELEMENTI IN UNA LISTA --> NEXT/PREVIOUS ELEMENT & N-ESIMO ELEMENTO AVANTI/INDIETRO A PARTIRE DA UN CERTO ELEMENTO 
+
+consecElem(X,[X,Y|_],Y):- !.
+consecElem(Elem,[_|T],ConsecElem):-
+    consecElem(Elem,T,ConsecElem).
+
+previousElem(X,[Y,X|_],Y):- !.
+previousElem(X,[_|T],Prev):-
+    previousElem(X,T,Prev).
+
+% vero se ElementN e' l'elemento della lista List distante N posizioni in avanti 
+% da Elem
+elemToNPositionForward(Elem,List,N,ElementN):-
+    N > 0,
+    append(Tmp1,Tmp,List),
+    append(_,[Elem],Tmp1),
+    nth1(N,Tmp,ElementN),!.
+
+% vero se ElementN e' l'elemento della lista List distante N posizioni all'indietro 
+% da Elem
+elemToNPositionBackward(Elem,List,N,ElementN):-
+    N > 0,
+    append(Tmp1,_,List),
+    append(Tmp,[Elem],Tmp1),
+    length(Tmp,Len),
+    Pos is Len-N+1,
+    nth1(Pos,Tmp,ElementN),!.
+
+
+% CONCETTO ADIACENTE in lista lineare di 5*2 elementi
+%
+% adiacente([1,2,3,4,5,
+%            6,7,8,9,10],7,ListAdiacenti).
+
+adiacente(List,Elem,ListAdiacenti):-
+    nth1(1,List,Elem),
+    length(ListAdiacenti,2),
+    consecElem(Elem,List,Adiacente),
+    member(Adiacente,ListAdiacenti),
+    elemToNPositionForward(Elem,List,5,Adiacente2),!,
+    member(Adiacente2,ListAdiacenti).
+
+adiacente(List,Elem,ListAdiacenti):-
+    nth1(10,List,Elem),
+    length(ListAdiacenti,2),
+    previousElem(Elem,List,Adiacente),
+    member(Adiacente,ListAdiacenti),
+    elemToNPositionBackward(Elem,List,5,Adiacente2),!,
+    member(Adiacente2,ListAdiacenti).
+
+adiacente(List,Elem,ListAdiacenti):-
+    nth1(Pos,List,Elem),
+    Pos < 6, Pos > 1,
+    length(ListAdiacenti,3),
+    previousElem(Elem,List,Adiacente),
+    consecElem(Elem,List,Adiacente2),
+    elemToNPositionForward(Elem,List,5,Adiacente3),
+    member(Adiacente,ListAdiacenti),
+    member(Adiacente2,ListAdiacenti),!,
+    member(Adiacente3,ListAdiacenti).
+
+adiacente(List,Elem,ListAdiacenti):-
+    nth1(Pos,List,Elem),
+    Pos > 5, Pos < 10,
+    length(ListAdiacenti,3),
+    previousElem(Elem,List,Adiacente),
+    consecElem(Elem,List,Adiacente2),
+    elemToNPositionBackward(Elem,List,5,Adiacente3),
+    member(Adiacente,ListAdiacenti),
+    member(Adiacente2,ListAdiacenti),!,
+    member(Adiacente3,ListAdiacenti).
+
+------------------------------------------------------
+
+SELEZIONA CASUALMENTE ELEMENTO DA UNA LISTA
+
+selezionaElementoCasualmente(List,El):-
+    length(List,Len),
+    Pos is random(Len)+1,
+    nth1(Pos,List,El).
+
+-----------------------------------------------------
+
+TUTTI I POSSIBILI SOTTOINSIEMI DI UNA LISTA
+
+subset([], []).    % tutti i possibili sottoinsiemi di una lista
+subset([H|Tail], [H|NTail]):-
+  subset(Tail, NTail).
+subset([_|Tail], NTail):-
+  subset(Tail, NTail).
+
+
+allSubsetsOfList(List,Subsets):-
+    setof(Sub,subset(List,Sub),Subsets).
+
+------------------------------------------------------
+

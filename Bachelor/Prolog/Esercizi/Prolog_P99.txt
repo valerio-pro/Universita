@@ -1,0 +1,221 @@
+P-99: NINETY-NINE PROLOG PROBLEMS
+https://www.ic.unicamp.br/~meidanis/courses/mc336/2009s2/prolog/problemas/
+
+
+% P8   Eliminate consecutive duplicates of list elements -->  ?- compress([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X). ---> X = [a,b,c,a,d,e]
+
+eliminaConsecutiviUguali([_],[]):- !.
+eliminaConsecutiviUguali([H1,H2|T],[H2|T]):- H1\=H2,!.
+eliminaConsecutiviUguali([H,H|T],L):-
+	eliminaConsecutiviUguali([H|T],L).
+
+compress([],[]).
+compress([H|T],[H|T1]):-
+    eliminaConsecutiviUguali([H|T],L),
+    compress(L,T1).
+
+
+% P9  pack([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X). -----> X = [[a,a,a,a],[b],[c,c],[a,a],[d],[e,e,e,e]]
+
+listaPrivataDiTestaConsecutivi([_],[]):- !.
+listaPrivataDiTestaConsecutivi([H1,H2|T],[H2|T]):- H1\=H2,!.
+listaPrivataDiTestaConsecutivi([H,H|T],L):-
+    listaPrivataDiTestaConsecutivi([H|T],L).
+
+packElements([H],[H]):- !.
+packElements([H1,H2|_],[H1]):- H1\=H2,!.
+packElements([H,H|T],[H|T1]):-
+    packElements([H|T],T1).
+
+pack([],[]).
+pack([H|T],[Sub|T1]):-
+    packElements([H|T],Sub),
+    listaPrivataDiTestaConsecutivi([H|T],List),
+    pack(List,T1).
+
+
+% P10
+
+count_cons(_,[],0).
+count_cons(H,[X|_],0):- H \= X,!.
+count_cons(H,[H|T],N):-
+	count_cons(H,T,N1),
+    N is N1+1,!.
+
+new_list(_,[],[]).
+new_list(H,[H1|T],[H1|T]) :- H \= H1,!.
+new_list(H,[H|T],L):-
+    new_list(H,T,L).
+
+encode([],[]).
+encode([H|T],[H1|T1]):-
+    count_cons(H,[H|T],N),
+    new_list(H,[H|T],L),
+	H1 = [H,N],
+    encode(L,T1),!.
+
+
+% P11
+
+encode_modified([],[]).
+encode_modified([H|T],[H1|T1]):-
+    count_cons(H,[H|T],N),
+    N==1,
+	H1 = H,
+    encode_modified(T,T1),!.
+encode_modified([H|T],[H1|T1]):-
+    count_cons(H,[H|T],N),
+    new_list(H,[H|T],L),
+	H1 = [H,N],
+    encode_modified(L,T1),!.
+
+
+% P12
+unpack([Atom,N],Atom,N).
+
+same_elements([H],H).
+same_elements([H|T],H):-
+    same_elements(T,H).
+construct(L,H,N):-
+    length(L,N),
+    same_elements(L,H),!.
+
+decode([],[]).
+decode([H|T],List):-
+    is_list(H),!,
+    unpack(H,N,Atom),
+    construct(L,Atom,N),
+    append(L,T1,List),   % T1 e' la lista che rimane da costruire 
+    decode(T,T1).
+
+decode([H|T],[H|T1]):-
+    decode(T,T1).
+
+
+% P15
+
+dupliNTimes(_,0,[]) :- !.
+dupliNTimes(L,1,L) :- !.
+dupliNTimes([],_,[]).
+dupliNTimes([H|T],N,List):-
+    nSubList(H,N,SubN),
+    append(SubN,T1,List),
+    dupliNTimes(T,N,T1).
+
+nSubList(Atom,N,SubN):-
+    length(SubN,N),
+    same_elements(SubN,Atom),!.
+
+
+% P17
+
+split(List,Index,L1,L2):-
+    length(L1,Index),
+    length(List,TotalLen),
+    TotalLen >= Index,
+    Len2 is TotalLen-Index,
+    length(L2,Len2),
+    append(L1,L2,List).
+
+
+% P18
+
+slice(List,I,J,L):-
+    N is J-I+1,
+    length(List,TotalLen),
+    TotalLen >= J-I+1,
+    length(L,N),
+    LenStart is I-1,
+    length(Start,LenStart),
+    LenFinish is TotalLen-J,
+    length(Finish,LenFinish),
+    append(Start,L,Tmp),
+    append(Tmp,Finish,List).
+
+
+
+% P20
+
+list_without_last([_],[]).
+list_without_last([H|T],[H|T1]):-
+    list_without_last(T,T1).
+
+lastElement([X],X).
+lastElement([_|T],El):-
+    lastElement(T,El).
+
+deleteAtPositionK(_,L,Pos,L):- length(L,N),Pos > N,!.
+deleteAtPositionK(El,L,Pos,Res):-
+    length(Sub,Pos),
+    append(Sub,T,L),
+    lastElement(Sub,El),
+    list_without_last(Sub,NewSub),
+    append(NewSub,T,Res),!.
+
+% P21
+
+insertAtPositionN(X,L,1,[X|L]):- !.
+insertAtPositionN(X,[],_,[X]):- !.
+insertAtPositionN(X,[H|T],N,[H|T1]):-
+    N > 0,
+    N1 is N-1,
+    insertAtPositionN(X,T,N1,T1).
+
+% P22
+
+range(L,H,[]):- L>H,!.
+range(L,L,[L]):- !.
+range(L,H,[L|T]):-
+    L1 is L+1,
+    range(L1,H,T),!.
+
+
+% P26
+
+binomial_coefficient_size_lists(K,List,AllSubsetsOfKElements):-
+    setof(Subset,kSubList(K,List,Subset),AllSubsetsOfKElements1),
+    privataDiPermutazioni(AllSubsetsOfKElements1,AllSubsetsOfKElements),!.
+
+
+kSubList(K,List,Sub):-
+    length(Sub,K),
+    members(Sub,List).
+
+members([],_).
+members([H|T],List):-
+	member(H,List),
+    privataDi(H,List,L),
+    members(T,L).
+
+delPerm(_,[],[]).
+delPerm(El,[H|T],L):-
+    permutation(El,H),!,
+    delPerm(El,T,L).
+delPerm(El,[H|T],[H|T1]):-
+    delPerm(El,T,T1).
+
+privataDiPermutazioni([],[]).
+privataDiPermutazioni([H|T],[H|T1]):-
+    delPerm(H,[H|T],L),
+    privataDiPermutazioni(L,T1).
+
+privataDi(_,[],[]).
+privataDi(El,[El|T],L):-
+    privataDi(El,T,L).
+privataDi(El,[H|T],[H|T1]):-
+    El \= H,
+    privataDi(El,T,T1).
+
+
+
+
+
+
+
+
+
+
+
+/** <examples>
+?- encode_modified([a,a,a,a,b,c,c,a,a,d,e,e,e,e],X).
+*/

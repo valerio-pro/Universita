@@ -1,0 +1,140 @@
+
+--> Installare mongoDB da www.mongoDB.com e scaricare il "Community Server"
+--> Installare MongoDB Database Tools per comandi come mongoimport e mettere i comandi nella 
+cartella "\bin" dove sono gia' tutti i comandi di mongoDB
+
+Dopo l’installazione posizionarsi in riga comando nella directory 
+"Program Files\Mongodb\.....\bin"
+
+---> cd C:\Program Files\MongoDB\Server\4.4\bin
+
+•Lanciare il comando «mongod»
+
+•A questo punto si attiverà mongod che lascerete aperto
+
+•Aprire un’altra finestra di comandi, riposizionarsi in "Program Files\Mongodb\.....\bin" 
+e lanciare «mongo»
+
+•Vi troverete nell’ambiente mongo e potete provare i primi comandi per esempio "show dbs" vi 
+farà vedere i database di prova
+
+•In alcuni casi, per far funzionare tutto, dovrete creare sotto la directory C, 
+la directory "/data/db"
+--------------------
+--------------------
+A questo punto, fuori dall’ambiente dei comandi di Mongo, potete caricare una collection 
+di prova da un file che trovate facilmente in rete, o su Teams, il cui nome è:
+•primer-dataset.json
+
+Il comando per caricarvi la collection è:
+•mongoimport --db prova --collection restaurants --drop --file 
+«path_directory_dove_si_trova_il_file_json»\primer-dataset.json
+
+-------------------
+-------------------
+
+OPERATORI CONFRONTO
+
+$gt, maggiore di
+$gte, maggiore o uguale a
+$lt, minore di
+$lte, minore o uguale a
+$ne, diverso da
+$in, uguale ad un valore tra quelli inseriti in un array
+$nin, diverso da ogni valore tra quelli inseriti in un array
+
+-------------------
+-------------------
+A questo punto potete iniziare a lavorare con i vostri dati dei ristoranti provando 
+ad esempio i seguenti comandi:
+
+•show dbs, fa vedere i db presenti
+
+•show collections, fa vedere le collections presenti
+
+•use prova, si colloca sui ristoranti
+
+•db.restaurants.find(), lista degli oggetti inseriti
+
+•db.restaurants.find().pretty(), lista piu' leggibile degli oggetti inseriti
+
+•db.restaurants.find({name:'GloriousFood'}), per cercare quel nome
+
+•db.restaurants.count(), per contare i ristoranti
+
+•db.restaurants.find({cuisine:'American'}).count(), per contare i soli ristoranti con cucina 
+americana
+
+•db.restaurants.find({},{name:1,borough:1}).sort({cuisine:1}).limit(10), per vedere i nomi e 
+i quartieri dei primi 10 ristoranti ordinati per cucina
+
+•db.restaurants.find({borough: 'Brooklyn'},{name:1}), per visualizzare i nomi di tutti i 
+ristoranti di Brooklyn
+
+•db.restaurants.distinct('borough'), per visualizzare i diversi valori del campo quartiere
+
+•db.restaurants.distinct('borough').length, per visualizzare il numero dei diversi quartieri
+
+•db.restaurants.find({},{grade:'A'}).sort({name:1}), per vedere tutti gli oggetti che hanno 
+grade pari ad A ed ordinati per nome
+
+•db.restaurants.find({},{borough:1,name:1}).sort({cuisine:1}), per vedere quartieri e nomi
+di tutti i ristoranti ordinati per cucina
+
+
+•db.restaurants.find({name: /coffee/i}, {name: 1, _id: 0}).pretty(), name contain string coffee 
+ignoreCase when a i is added after the last '/'
+
+•db.restaurants.find({name: /^Starbucks/}, {name: 1, _id: 0}).pretty(), name starts with 
+Starbucks
+
+•db.restaurants.find({name: /Shop$/}, {name: 1, _id: 0}).pretty(), name ends with shop
+
+•db.restaurants.find({"grades.grade": {"$gte": ISODate("2013-10-01")}})
+
+•db.restaurants.aggregate({"$group":{"_id":"$borough"}}), aggregate
+
+•db.restaurants.aggregate([ 
+
+    {"$unwind": "$grades"}, 
+
+    {"$match": {"grades.grade": "A"}}, 
+
+    {"$project": {"restaurant_id": 1, "name": 1, "grades": 1}} 
+
+]).pretty(), mostra solo i ristoranti con Grade A
+
+------------------------
+
+INSERIMENTO OGGETTO IN COLLECTION
+
+r = {}
+
+r.restaurant_id = "101" 
+r.name = "Da Mario" 
+r.cuisine = "Italiano"
+
+a = {} 
+a.building = "1-A"
+
+a.coord = [ 41.8902102, 12.4922309 ]  
+a.street = "Piazza del Colosseo" 
+r.address = a 
+
+r.grades = []  // crea un array vuoto
+g = { date: ISODate("2016-07-31T13:00:00Z"), grade: "A", score: 10 }  // ISODate e' un oggetto che gestisce date
+r.grades.push(g)  // aggiunge 'g' all'ultima posizione dell'array r.grades
+g = { date: ISODate(), grade: "D", score: 4 }  
+r.grades.push(g)  
+
+db.restaurants.insert(r) // inserisce l'oggetto nella collection restaurants
+
+ 
+------------------------
+
+RICERCA IN ARRAY
+
+•db.restaurants.find( { $where: function(){   
+	for(i = 0; i < this.grades.length; i++){ 
+		if(this.grades[i].score <= 20){return false;}} 
+	return true;}}),  ristoranti con Scores > 20 

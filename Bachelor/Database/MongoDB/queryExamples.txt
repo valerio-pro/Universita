@@ -1,0 +1,102 @@
+
+// PER VISUALIZZARE TEMPI DELLE QUERY IN MONOGDB
+
+// IN AGGREGATE --->  db.<collection>.explain("executionStats").aggregate(<query>)
+// IN FIND --->  db.<collection>.find(<query>).explain("executionStats")
+
+
+// PER VISUALIZZARE IN UNA AGGREGATE CHE USA GROUP IL NUMERO DI DOCUMENTS CHE SODDISFANO UNA CONDIZIONE ESPRESSA PRECEDENTEMENTE (CON $match AD ESEMPIO)
+// USARE NELLA GROUP L'OPZIONE total COSI ---> {"$group": {_id: "$<group_field>", total: {"$sum": 1}}}
+
+
+// selezionare tutti gli attori che rientrano in categoria "S" o "A" e che hanno fatto il loro esordio dopo l'anno 1978
+1) db.Attore.find({"categoria": {$in: ["S", "A"]}, "esordio": {$gt: 1978}}, {nome:1, cognome:1, categoria:1, esordio:1})
+
+// selezionare tutti i film di tipo lungometraggio e con durata inferiore a 100 minuti
+2) db.Film.find({"tipo":{$eq: "C"}, "durata": {$lt: 100}}, {titolo:1, dataUscita:1, tipo:1, durata:1})
+
+------------------------------------
+// somma compensi per ogni ruolo
+ex) db.Attore.aggregate([{"$unwind": "$partecipazioni"}, 
+			{"$group": {_id: "$partecipazioni.ruolo", total: {"$sum": "$partecipazioni.compenso"}}}])
+
+// somma compensi per ruolo protagonista, nel $match non ci va il '$' per l'argomento
+db.Attore.aggregate([{"$unwind": "$partecipazioni"}, 
+		     {"$match": {"partecipazioni.ruolo": "Protagonista"}}, 
+		     {"$group": {_id: "$partecipazioni.ruolo", total:{"$sum": "$partecipazioni.compenso"}}}])
+
+// somma compensi per ogni categoria
+ex) db.Attore.aggregate([{"$unwind": "$partecipazioni"}, 
+			{"$group": {_id: "$categoria", total:{"$sum": "$partecipazioni.compenso"}}}])
+
+
+// somma compensi per categoria 'S'
+db.Attore.aggregate([{"$unwind": "$partecipazioni"}, 
+		     {"$match": {"categoria":"S"}},
+		     {"$group": {_id: "$categoria", 
+				total:{"$sum": "$partecipazioni.compenso"}}}])
+
+
+// somma compensi (prende tutte le recitazioni) dell'attore con id = 81606
+db.Attore.aggregate([{"$unwind": "$partecipazioni"}, 
+		     {"$match": {"categoria":"S", "id":81606}, },
+		     {"$group": {_id: "$id", total:{"$sum": "$partecipazioni.compenso"}}}])
+
+------------------------------
+
+
+// seleziona tutti gli attori che hanno partecipato in film in formato 3D
+// l'operatore di "lookup" permette il join tra collections diverse, in "localfield" va messo il campo dei documenti della collection su cui stiamo eseguendo
+// la query, in "foreignField" va messo il rispettivo campo della collection esterna specificata nel campo "from"
+3) db.Attore.aggregate([{"$unwind":"$partecipazioni"}, 
+			{"$lookup": {from: "Film", localField: "partecipazioni.titolo", foreignField: "titolo", as: "FilmData"}}, 
+			{"$unwind": "$FilmData"}, 
+			{"$match": {"FilmData.formato": "3D"}}, 
+			{"$group": {_id: "$id"}},
+			{"$project": {nome:1, cognome:1}}])
+
+
+// seleziona nome e cognome degli attori che hanno recitato almeno una volta come protagonisti
+4) db.Attore.aggregate([{"$unwind":"$partecipazioni"},
+			{"$match":{"partecipazioni.ruolo": "Protagonista"}}, 
+			{"$group": {_id: "$id", nome: {"$max": "$nome"}, cognome: {"$max": "$cognome"}}}])
+
+
+
+// seleziona per ogni ruolo quale è il compenso più alto
+5) db.Attore.aggregate([{"$unwind": "$partecipazioni"},
+			{"$group": {_id: "$partecipazioni.ruolo", compenso: {"$max": "$partecipazioni.compenso"}}}])
+
+
+// selezionare gli attori (nome, cognome, categoria) la cui somma dei guadagni sia superiore a $950000 e che rientrano in una delle seguenti categorie: S, A, B
+6) db.Attore.aggregate([{"$match": {categoria: {$in: ["S", "A", "B"]}}}, 
+			{"$unwind": "$partecipazioni"}, 
+			{"$group": {_id: "$id", sommaGuadagni: {"$sum": "$partecipazioni.compenso"}}},
+			{"$match": {sommaGuadagni: {$gte: 950000}}}])
+
+
+// selezionare per ogni diversa categoria di attori il numero di attori che rientrano in quella categoria in ordine crescente di numero di attori
+7) db.Attore.aggregate([{"$group": {_id: "$categoria", total: {"$sum":1}}},
+			{"$sort": {total: 1}}])
+
+
+// selezionare i 5 film che hanno incassato di più e che sono in formato "2D"
+8) db.Film.find({"formato":{$eq: "2D"}}, {titolo: 1, incasso: 1, formato: 1}).sort({incasso: -1}).limit(5)
+
+
+
+// selezionare per ogni film la somma dei guadagni dai contratti fatti con le aziende in ordine decrescente di guadagno, limitando i documents ritornati a 20
+9) db.Film.aggregate([{"$unwind": "$contratti"},
+		      {"$group": {_id: "$titolo", guadagnoContratti: {"$sum": "$contratti.valoreContratto"}}},
+		      {"$sort": {guadagnoContratti: -1}},
+		      {"$limit": 20}])
+
+// selezionare per ogni azienda che ha sponsorizzato almeno un film, il suo net worth
+// $lookup e' uno stage molto lento
+10) db.Film.aggregate([{"$unwind": "$contratti"},
+		      {"$lookup": {from: "Azienda", localField: "contratti.nomeAzienda", foreignField: "nomeAzienda", as: "AziendaC"}},
+		      {"$unwind": "$AziendaC"},
+		      {"$group": {_id: "$AziendaC.nomeAzienda"}},
+		      {"$project": {"AziendaC.nomeAzienda": 1, "AziendaC.netWorth": 1}}]) 
+
+		 

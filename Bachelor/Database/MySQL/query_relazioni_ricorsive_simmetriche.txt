@@ -1,0 +1,34 @@
+# Test per fare query su relazioni ricorsive simmetriche
+
+# usare clausola UNION
+
+# se si vuole usare ORDER BY con una UNION allora bisogna mettere le select tra parentesi e
+# mettere l'ORDER BY alla fine, cosi:
+# (select ...) UNION (select ...) ORDER BY <campo> ASC/DESC;
+
+create database colleghi;
+use colleghi;
+
+create table impiegato (id int not null, nome varchar(32), cognome varchar(32), dipartimento int, primary key(id));
+create table collega (imp1 int not null, foreign key(imp1) references impiegato(id) on update cascade on delete no action,
+		      imp2 int not null, foreign key(imp2) references impiegato(id) on update cascade on delete no action,
+		      primary key(imp1, imp2));
+
+insert into impiegato values (1, 'Mario', 'Rossi', 10), (2, 'Luca', 'Neri', 10),
+			     (3, 'Nicola', 'Bianchi', 20), (4, 'Marco', 'Neri', 20),
+			     (5, 'Maria', 'Bianchi', 10), (6, 'Sara', 'Rossi', 10);
+
+insert into collega values (1, 2), (3, 1), (5, 1), (6, 4), (5, 6), (2, 3);
+
+
+
+
+# seleziona tutti i colleghi dell'impiegato con id = 1
+
+(select imp2 as collega_id, nome, cognome 
+from collega, impiegato
+where imp1 = 1 and collega.imp2 = impiegato.id)
+union
+(select imp1 as collega_id, nome, cognome
+from collega, impiegato
+where imp2 = 1 and collega.imp1 = impiegato.id);

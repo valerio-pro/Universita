@@ -1,0 +1,15 @@
+
+// sintassi LaTeX
+
+2) Selezionare tutti gli attori (nome, cognome, ruolo nel film) che hanno recitato in film (selezionarne titolo e formato) in formato "3D"
+
+2) \pi_{nome, cognome, ruolo, titolo, formato}(ARTISTA \bowtie_{id = idAttore}(((\rho_{idAttore \leftarrow id}(ATTORE))
+   \bowtie_{idAttore = idRecita}(\rho_{idRecita,titoloRecita \leftarrow id,titolo}(RECITA))) \bowtie_{titoloRecita = titolo}
+   (\sigma_{formato = '3D'}(FILM))))
+
+
+20) Selezionare tutti i titoli dei film girati dallo stesso regista (visualizzarne nome e cognome) che ha girato il film "Dunkirk"
+
+20) \pi_{titolo1,nome,cognome}(((\sigma_{titolo2 = 'Dunkirk'}(\rho_{idRegFilm2,titolo2 \leftarrow idRegista,titolo}(FILM))) 
+    \bowtie_{idRegFilm2 = idRegFilm1}(\rho_{idRegFilm1,titolo1 \leftarrow idRegista,titolo}(FILM))) \bowtie_{idRegFilm1 = idRegista}
+    (\rho_{idRegista \leftarrow id}(REGISTA)) \bowtie_{idRegista = id} ARTISTA)

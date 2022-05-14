@@ -1,0 +1,47 @@
+1) flatten(L,FL). -----> flatten([a,[b,c,[d,e]],f,[g,h],[i]], FL). --> FL = [a,b,c,d,e,f,g,h,i].
+
+my_flatten([],[]).
+my_flatten([H|T],[H|T1]):-
+    not(is_list(H)),
+    my_flatten(T,T1),!.
+my_flatten([H|T],[H1|T1]):-
+    is_list(H),
+    my_flatten(H,L),
+    my_flatten(T,LT),
+    append(L,LT,[H1|T1]),!.
+
+2) list_to_set(L,S). ------> list_to_set([a,a,b,a,b,a,a,b,c,d,w,w,w,s,s,a],S). --> S = [a,b,c,d,w,s].
+
+listToSet([],[]).
+listToSet([H|T],[H|T1]):-
+    privataDi(H,[H|T],L),
+    listToSet(L,T1).
+
+privataDi(El,L,L):- not(member(El,L)),!. 
+privataDi(El,[El|T],L):-
+    privataDi(El,T,L),!.
+privataDi(El,[H|T],[H|T1]):-
+    El\=H,
+    privataDi(El,T,T1),!.
+
+
+3) nth1(N, List, Element)  % succeeds if the Nth argument of List is Element.
+
+4) min_list(+list, ?number)
+   max_list(+list, ?number)
+   sum_list(+list, ?number)
+
+5) sort(List, SortedList) ----> ordina la lista List ed elimina i duplicati
+   msort(List, SortedList) ----> ordina la lista List e basta
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,20 @@
+INSTALLAZIONE ---> dal sito "MySQL web-community installer"---> basta poi nell'installer scegliere il server e la workbench
+
+MySQL DA RIGA DI COMANDO
+
+1) cd C:\Program Files\MySQL\MySQL Server 8.0\bin\   mysqld 
+2) cd C:\Program Files\MySQL\MySQL Server 8.0\bin\   mysql -u root -p 
+(password: <password> ---> per utente: root ---> per host: localhost)
+(se ancora non impostata password --> mysql -u root) 
+
+-> show databases;
+-> use <database_name>;
+-> show tables;
+-> exit;
+
+// sintassi per eseguire sql scripts da file esterno (estensione file può essere .txt o .sql)
+source "(absolute?)path_directory\<nome_file>.txt";  
+
+
+per database handling con python installare la libreria giusta
+-----> pip3 install mysql-connector-python

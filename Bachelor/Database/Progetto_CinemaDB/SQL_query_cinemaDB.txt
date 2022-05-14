@@ -1,0 +1,218 @@
+
+1) Selezionare nome, cognome, categoria di tutti gli attori che hanno recitato come protagonisti in film prodotti da studi cinematografici (selezionarne nome e quota di mercato) che hanno una quota di mercato inferiore a 0.08
+
+1) SELECT nome, cognome, categoria.descrizione, studio_cinematografico.nome_studio, quota_di_mercato
+	FROM recita, artista, attore, categoria, studio_cinematografico, film
+		WHERE categoria.codice_categoria = attore.categoria AND artista.id = attore.id AND attore.id = recita.id 
+		AND recita.ruolo = 'Protagonista' AND recita.titolo = film.titolo AND film.studio = studio_cinematografico.nome_studio 
+		AND quota_di_mercato < 0.08;
+
+
+2) Selezionare tutti gli attori (nome, cognome, ruolo nel film) che hanno recitato in film (selezionarne titolo e formato) in formato "3D"
+
+2) SELECT nome, cognome, ruolo, film.titolo, formato
+	FROM artista, attore, recita, film
+		WHERE artista.id = attore.id AND attore.id = recita.id 
+		AND recita.titolo = film.titolo 
+		AND formato = '3D';
+
+
+3) Selezionare tutti i registi che sono anche attori e riportare per ciascuno il numero totale di film girati nella loro carriera e inoltre anche nome e numero di telefono dell'agenzia cui fanno riferimento
+
+3) SELECT CONCAT(nome, ' ', cognome) AS regista_e_attore, numero_film_indipendenti + COUNT(film.id_regista) AS numero_totale_film, nome_agenzia, numero_telefono
+	FROM artista, regista, attore, agenzia, film
+		WHERE artista.id = regista.id AND artista.id = attore.id 
+		AND artista.agenzia = agenzia.nome_agenzia
+		AND regista.id = film.id_regista
+		GROUP BY id_regista;
+		
+
+4) Selezionare tutti gli attori (nome, cognome e data di nascita) che hanno recitato come Protagonisti o personaggi Secondari in film d'azione o commedie
+
+4) SELECT nome, cognome, data_nascita, film.titolo
+	FROM artista, attore, recita, film, generi_film, genere
+		WHERE artista.id = attore.id AND attore.id = recita.id AND ruolo IN ('Protagonista', 'Secondario') AND recita.titolo = film.titolo AND film.titolo = generi_film.titolo AND generi_film.codice_genere = genere.codice_genere AND genere.descrizione IN ('Azione', 'Commedia')
+			GROUP BY attore.id;
+
+
+5) Selezionare titoli, durata, incassi e tipologia dei film diretti da registi che fanno riferimento ad agenzie nel cui nome contengono la parola "Council"
+
+5) SELECT film.titolo, durata, incasso, tipo.descrizione, formato, agenzia
+	FROM film, tipo, regista, artista
+		WHERE film.id_regista = regista.id AND regista.id = artista.id AND artista.agenzia LIKE '%Council%' AND film.tipo = tipo.codice_tipo; 
+
+
+6) Per ogni studio cinematografico selezionare la propria percentuale di mercato e il totale degli incassi dei film da loro prodotti
+
+6) SELECT CONCAT('$', SUM(incasso)/1000000, ' milioni') AS incasso_totale, studio_cinematografico.nome_studio, CONCAT(CAST(quota_di_mercato*100 AS UNSIGNED),'','%') AS percentuale_di_mercato
+	FROM film, studio_cinematografico 
+		WHERE film.studio = studio_cinematografico.nome_studio 
+			GROUP BY studio_cinematografico.nome_studio;
+
+
+7) Selezionare i titoli dei film di genere "horror" e i rispettivi registi che hanno pero' girato nella loro carriera un numero di film indipendenti che sia strettamente minore di 4
+
+7) SELECT film.titolo, genere.descrizione, nome, cognome, numero_film_indipendenti
+	FROM film, genere, generi_film, regista, artista
+		WHERE film.titolo = generi_film.titolo AND genere.codice_genere = generi_film.codice_genere AND genere.descrizione = 'Horror' AND film.id_regista = regista.id AND artista.id = regista.id AND numero_film_indipendenti < 4;
+
+
+8) Selezionare il nome e l'anno di fondazione delle aziende con cui lo studio cinematografico "Miramax" ha firmato contratti
+
+8) SELECT azienda.nome_azienda, anno_fondazione, nome_studio 
+	FROM azienda, film, studio_cinematografico, contratto_azienda
+		WHERE studio_cinematografico.nome_studio = 'Miramax' AND studio_cinematografico.nome_studio = film.studio AND film.titolo = contratto_azienda.titolo AND contratto_azienda.nome_azienda = azienda.nome_azienda
+	 		GROUP BY azienda.nome_azienda;
+
+
+9) Selezionare la top 3 dei titoli dei film di genere "thriller" con maggiori incassi tra tutti i film che condividono stesso genere, usciti nelle sale prima dell'uscita del film 'Drive'
+
+9) SELECT f1.titolo, f1.data_uscita, f1.incasso, genere.codice_genere, descrizione 
+	FROM film AS f1, film AS f2, generi_film, genere 
+		WHERE f2.titolo = 'Drive' AND f1.data_uscita < f2.data_uscita AND f1.titolo = generi_film.titolo AND generi_film.codice_genere = genere.codice_genere AND descrizione = 'Thriller'
+			ORDER BY f1.incasso DESC LIMIT 3;
+
+
+10) Per ogni studio cinematografico selezionare il contratto piu' proficuo stabilito con le aziende, visualizzare i risultati in ordine crescente di valore dei contratti
+
+10) SELECT studio, massimo, contratto_azienda.nome_azienda
+	FROM film, contratto_azienda, (SELECT studio AS stud, MAX(valore_contratto) AS massimo FROM contratto_azienda, film where film.titolo = contratto_azienda.titolo GROUP BY stud) AS tabella
+		WHERE contratto_azienda.valore_contratto = tabella.massimo AND film.titolo = contratto_azienda.titolo AND stud = studio
+			ORDER BY massimo ASC;	
+
+
+11) Selezionare gli attori (nome, cognome, categoria) la cui somma dei guadagni sia superiore a $35000 e che rientrano in una delle seguenti categorie: S, A, B
+
+11) SELECT nome, cognome, SUM(compenso) AS compenso_totale, categoria.codice_categoria, descrizione
+	FROM artista, attore, recita, categoria
+		WHERE artista.id = attore.id AND attore.id = recita.id AND attore.categoria = categoria.codice_categoria AND codice_categoria IN ('S', 'A', 'B') 
+			GROUP BY attore.id HAVING compenso_totale > 35000;
+
+
+12) Selezionare nome, citta' ed indirizzo di tutti i cinema che ricevono pellicole da almeno uno studio cinematografico con quota di mercato superiore o uguale a 0.11
+
+12) SELECT cinema.nome_cinema, cinema.citta, cinema.indirizzo
+	FROM cinema, distribuzione, studio_cinematografico
+		WHERE quota_di_mercato >= 0.11 AND studio_cinematografico.nome_studio = distribuzione.nome_studio AND distribuzione.nome_cinema = cinema.nome_cinema 
+			GROUP BY cinema.nome_cinema; 
+
+
+13) Selezionare gli studi cinematografici che hanno una media degli incassi provenienti dai film prodotti superiore a 1.5 milioni di dollari
+
+13) SELECT studio, CONCAT('$', AVG(incasso)/1000000, ' milioni') AS incasso_medio 
+	FROM film
+		GROUP BY studio HAVING AVG(incasso) > 1500000;
+
+
+
+14) Selezionare tutti gli attori che hanno recitato insieme all'attore "Ryan Gosling" e i nomi dei rispettivi film in cui hanno recitato insieme
+
+14) SELECT a2.nome, a2.cognome, r1.titolo 
+	FROM artista AS a1, artista AS a2, recita AS r1, recita AS r2
+		WHERE a1.nome = 'Ryan' AND a1.cognome = 'Gosling' AND a2.nome <> 'Ryan' AND a2.cognome <> 'Gosling'
+		AND r1.id = a1.id AND a2.id = r2.id 
+		AND r2.titolo = r1.titolo;
+
+
+15) Per ogni studio cinematografico selezionare il titolo del film prodotto con durata minore
+
+15) SELECT titolo, studio, durata 
+	FROM film, (SELECT studio AS nome, MIN(durata) AS durata_minima FROM film GROUP BY nome) AS durate
+		WHERE durate.durata_minima = film.durata AND durate.nome = film.studio
+			GROUP BY studio; 
+
+
+16) Selezionare gli incassi prodotti da cortometraggi e contarne anche il numero
+
+16) SELECT descrizione, COUNT(*) AS numero, SUM(incasso) AS incasso_totale
+	FROM film, tipo
+		WHERE film.tipo = tipo.codice_tipo AND tipo.descrizione = 'Cortometraggio';
+
+
+17) Selezionare tutti i registi (nome, cognome, data di nascita) che fanno riferimento alla stessa agenzia (selezionarne nome e citta) cui fa riferimento "Edgar Wright"
+
+17) SELECT a1.nome, a1.cognome, a1.data_nascita, nome_agenzia, citta
+	FROM artista AS a1, artista AS a2, regista AS r1, agenzia
+		WHERE a2.nome = 'Edgar' AND a2.cognome = 'Wright' AND r1.id = a1.id AND a1.agenzia = a2.agenzia AND a1.agenzia = agenzia.nome_agenzia;
+
+
+18) Per ogni ruolo selezionare l'attore (nome e cognome) che ha guadagnato di piu' per quel ruolo, visualizzare i risultati in ordine crescente di guadagni
+
+18) SELECT nome, cognome, ruolo, CONCAT('$', '', compenso) AS compenso
+	FROM artista, attore, recita, (SELECT ruolo AS ruolo2, MAX(compenso) AS massimo_compenso FROM recita GROUP BY ruolo) AS compensi_massimi
+		WHERE recita.id = attore.id AND attore.id = artista.id AND recita.compenso = compensi_massimi.massimo_compenso AND recita.ruolo = compensi_massimi.ruolo2 
+			GROUP BY ruolo ORDER BY compenso ASC;
+
+
+19) Selezionare per ogni diversa categoria di attori il numero di attori che rientrano in quella categoria in ordine crescente
+ 
+19) SELECT categoria.codice_categoria, descrizione, COUNT(*) AS numero_attori_nella_categoria
+	FROM attore, categoria
+		WHERE attore.categoria = categoria.codice_categoria 
+			GROUP BY categoria.codice_categoria ORDER BY numero_attori_nella_categoria ASC; 
+
+
+20) Selezionare tutti i titoli dei film girati dallo stesso regista (visualizzarne nome e cognome) che ha girato il film "Dunkirk"
+
+20) SELECT f1.titolo, CONCAT(nome, ' ', cognome) AS regista
+	FROM film AS f1, film AS f2, artista, regista
+		WHERE f1.id_regista = f2.id_regista AND f2.titolo = 'Dunkirk' AND f1.id_regista = regista.id AND regista.id = artista.id;
+
+
+21) Selezionare per ogni studio cinematografico quale e' il cinema con piu' sale cui distribuiscono pellicole
+
+21) SELECT distribuzione.nome_studio, cinema.nome_cinema, cinema.citta, cinema.indirizzo, cinema.numero_sale
+	FROM cinema, distribuzione, (SELECT nome_studio, MAX(numero_sale) AS massimo_numero_sale FROM cinema, distribuzione WHERE distribuzione.nome_cinema = cinema.nome_cinema GROUP BY nome_studio) AS numeri_sale
+		WHERE cinema.nome_cinema = distribuzione.nome_cinema AND cinema.numero_sale = massimo_numero_sale AND numeri_sale.nome_studio = distribuzione.nome_studio;
+
+
+22) Selezionare la percentuale di film prodotti dallo studio cinematografico "Paramount Pictures"
+
+22) SELECT CONCAT((COUNT(film.titolo)/totale)*100, '', '%') AS percentuale, COUNT(film.titolo) AS numero, studio
+	FROM film, (SELECT COUNT(*) AS totale FROM film) AS numero_totale
+		WHERE studio = 'Paramount Pictures';
+
+
+23) Selezionare in percentuale per ogni studio cinematografico quanti film hanno prodotto sul totale
+
+23) SELECT CONCAT((parziale/totale)*100, '', '%') AS percentuale, parziale AS numero, studio
+	FROM film, (SELECT studio AS nome, COUNT(*) AS parziale FROM film GROUP BY studio) AS tmp_count, (SELECT COUNT(*) AS totale FROM film) AS tot_count
+		WHERE studio = nome	
+			GROUP BY studio;
+
+
+24) Selezionare il guadagno totale dato dalla produzione del film "Pulp Fiction", tenendo quindi conto degli incassi del film, dei contratti stretti con le aziende e dei soldi necessari a pagare gli attori
+
+24) SELECT film.titolo, CONCAT('$', (SUM(valore_contratto)+incasso-totale_dovuto)/1000000, ' milioni') AS guadagno_totale
+	FROM film, contratto_azienda, (SELECT SUM(compenso) AS totale_dovuto FROM recita WHERE titolo = 'Pulp Fiction') AS tot
+		WHERE film.titolo = 'Pulp Fiction' AND film.titolo = contratto_azienda.titolo;
+
+
+25) Selezionare gli attori (nome, cognome, anno di inizio carriera) e le agenzie (nome agenzia, citta, numero di telefono) cui fanno riferimento ma solo per attori che hanno iniziato la loro carriera nel seguente intervallo chiuso [esordio_Bruce_Willis - 10, esordio_Bruce_Willis + 10]   
+
+25) SELECT a1.nome, a1.cognome, attore1.esordio, agenzia.nome_agenzia, agenzia.citta, agenzia.numero_telefono
+	FROM agenzia, artista AS a1, artista AS a2, attore AS attore1, attore AS attore2
+		WHERE a1.id = attore1.id AND a2.nome = 'Bruce' AND a2.cognome = 'Willis' AND a2.id = attore2.id AND attore1.esordio BETWEEN (attore2.esordio - 10) AND (attore2.esordio + 10) AND a1.agenzia = agenzia.nome_agenzia;
+
+
+26) Selezionare tutti i titoli, date di uscita, durate e incassi dei film di genere "biografico" che hanno incassato piu' del film "Full Metal Jacket", visualizzare i risultati in ordine decrescente di incasso
+
+26) SELECT f1.titolo, descrizione, f1.data_uscita, f1.incasso, CONCAT(f1.durata, '', ' minuti') AS durata
+	FROM film AS f1, film AS f2, generi_film, genere
+		WHERE generi_film.codice_genere = genere.codice_genere AND descrizione = 'Biografico' AND f1.titolo = generi_film.titolo AND f2.titolo = 'Full Metal Jacket' AND f1.incasso > f2.incasso
+			ORDER BY f1.incasso DESC;
+
+
+27) Selezionare le agenzie (tutti gli attributi) cui fanno riferimento solo ed esclusivamente artisti che sono registi e cui non fa riferimento alcun attore
+
+27) SELECT nome_agenzia, citta, indirizzo, numero_telefono 
+	FROM regista, artista, agenzia 
+		WHERE artista.agenzia = agenzia.nome_agenzia AND regista.id = artista.id AND artista.agenzia NOT IN (SELECT agenzia FROM artista, attore WHERE artista.id = attore.id GROUP BY agenzia)
+			GROUP BY agenzia;
+
+
+28) Selezionare l'azienda che ha net worth piu' grande e il film (titolo, data di uscita, incasso, studio di produzione) sponsorizzato che ha incassato di meno rispetto tutti gli altri film sponsorizzati dalla stessa azienda
+
+28) SELECT azienda.nome_azienda, CONCAT('$', CAST(azienda.net_worth/1000000000 AS FLOAT(2)), ' miliardi') AS net_worth, film.titolo, data_uscita, incasso, studio
+	FROM (SELECT MAX(net_worth) AS net_massimo FROM azienda) AS azienda_massimo, (SELECT nome_azienda AS nome, MIN(incasso) AS incassi_minimi FROM film, contratto_azienda WHERE film.titolo = contratto_azienda.titolo GROUP BY nome_azienda) AS contratti_minimi, azienda, film
+		WHERE azienda.net_worth = azienda_massimo.net_massimo AND azienda.nome_azienda = contratti_minimi.nome AND incasso = incassi_minimi;

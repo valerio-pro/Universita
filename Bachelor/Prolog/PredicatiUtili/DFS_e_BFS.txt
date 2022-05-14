@@ -1,0 +1,108 @@
+VISITA BFS
+
+:- dynamic goal/1.
+
+solve(Start,End,Solution):-     % Solution e' il cammino che si cerca e Start e' il nodo di partenza
+    assertz(goal(End)),
+    breadthfirst([[Start]|Z] - Z,Solution1),
+    reverse(Solution1,Solution),
+    retract(goal(_)),!.
+
+breadthfirst([[Node|Path]|_] - _,[Node|Path]):-
+    goal(Node).
+
+breadthfirst([Path|Paths] - Z,Solution):-
+    extend(Path,NewPaths),
+    append(NewPaths,Z1,Z),
+    Paths \== Z1,
+    breadthfirst(Paths - Z1,Solution).
+
+extend([Node|Path],NewPaths):-
+    findall([NewNode,Node|Path],
+            (edge(Node,NewNode), \+ member(NewNode,[Node|Path])),
+            NewPaths).
+
+% goal([f]).   % nodo cui si vuole arrivare
+
+edge([a],[b]).
+edge([a],[c]).
+edge([b],[d]).
+edge([b],[e]).
+edge([c],[f]).
+edge([c],[g]).
+edge([d],[h]).
+edge([e],[i]).
+edge([e],[j]).
+edge([f],[k]).
+edge([b],[h]).
+edge([c],[j]).
+edge([j],[a]).
+edge([j],[e]).
+
+
+/** <examples>
+ * 
+?- solve([a],Path).
+
+*/
+
+---------------------------------------------------------
+
+VISITA DFS
+
+:- dynamic goal/1.
+
+solve(Node,End,Solution):-  % Node e' il nodo di partenza, Solution e' il cammino che si cerca
+    assertz(goal(End)),
+    depthfirst([],Node,Solution1),
+    reverse(Solution1,Solution),
+    retract(goal(_)),!.
+
+depthfirst(Path,Node,[Node|Path]):-  % DFS con cycle avoidance
+    goal(Node).
+
+depthfirst(Path,Node,Sol):-
+    edge(Node,Node1),
+    \+ member(Node1,Path),  % qui previene il ciclo
+    depthfirst([Node|Path],Node1,Sol).
+
+
+
+depthfirst2(Node,[Node],_):-   % DFS a profondita' limitata
+    goal(Node).
+
+depthfirst2(Node,[Node|Sol],MaxDepth):-
+    MaxDepth > 0,
+    edge(Node,Node1),
+    Max1 is MaxDepth-1,
+    depthfirst2(Node1,Sol,Max1).
+
+
+
+% goal([j]).   % nodo cui si vuole arrivare
+
+edge([a],[b]).
+edge([a],[c]).
+edge([b],[d]).
+edge([b],[e]).
+edge([c],[f]).
+edge([c],[g]).
+edge([d],[h]).
+edge([e],[i]).
+edge([e],[j]).
+edge([f],[k]).
+edge([b],[h]).
+edge([c],[j]).
+edge([j],[a]).
+edge([j],[e]).
+
+/** <examples>
+ * 
+?- solve([a],Path).
+
+*/
+
+
+
+
+
