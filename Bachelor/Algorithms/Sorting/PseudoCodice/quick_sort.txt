@@ -1,0 +1,28 @@
+algoritmo partizione(array a, intero low, intero high):
+
+	/* 	
+		rand_pos = (rand()%high-low+1)+low;     // RANDOMIZED
+		swap(a, low, rand_pos);
+		piv = a[low];
+		i = low; j = high;
+	*/
+
+	piv <- a[low]
+	i = low
+	j = high
+	
+	while i < j do:
+		while a[i] <= piv and i < j do:   // basta dire nel primo while che gli indici devono incrociarsi
+			i += 1
+		while a[j] > piv do:  // se dico anche nel secondo i < j allora perderei dei decrementi di j
+			j -= 1
+		if i < j then scambia(a, i, j)
+	scambia(a, rand_pos, j)
+	return j
+
+
+algoritmo quick_sort(array a, intero low = 0, intero high = len(a)-1):
+	if low < high then
+		p <- partizione(a, low, high)
+		quick_sort(a, low, p-1)
+		quick_sort(a, p+1, high)
