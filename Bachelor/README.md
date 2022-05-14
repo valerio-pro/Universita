@@ -1,1 +1,0 @@
-Bachelor's Degree
