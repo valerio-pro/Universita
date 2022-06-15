@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Play&display=swap'); /* "Play" font */
+@import url('https://fonts.googleapis.com/css2?family=Hind:wght@300&family=Play&display=swap'); /* "Hind" font */
+
+
+/* VARIABILI CSS GLOBALI */
+:root{
+    --title-color: #c76161;
+    --link-color: #3a7777;
+    --link-hover-color: #F5AF33;
+    --main-border-style: 1px solid #888888;
+    --image-border-style: 2px solid #c76161;
+    --footer-background-color: #171717;
+    --footer-text-color: #f1f1f1;
+    --centered-content-width: 944px;
+}
+
+/* --------------------------------------------------- */
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    text-decoration: none;
+    color: var(--link-color);
+}
+
+p {
+    padding: 15px 0;
+}
+
+li {
+    list-style: none;
+}
+
+a:hover {
+    color: var(--link-hover-color);
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Play', sans-serif;
+    color: var(--title-color);
+}
+
+body {
+    background-color: white;
+    font-size: 16px;
+    font-family: 'Hind', sans-serif;
+}
+
+/* --------------------------------------------------- */
+
+
+/* HEADER STYLE */
+
+
+header {
+    width: 100%;
+    height: 230px;
+    background-image: url('http://pw.netgroup.uniroma2.it/img/pic2.jpg');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-width: 944px;
+    background-position-x: center;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.header-line {
+    background-color: white;
+    position: absolute;
+    height: 70px;
+    width: 100%;
+    top: 80px;
+}
+
+.header-container {
+    width: var(--centered-content-width);
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.title-box {
+    width: 400px;
+    margin: 0 auto;
+    margin-left: 0;
+    z-index: 2;
+}
+
+.title-image {
+    position: absolute;
+    top: 0;
+    z-index: 1;
+}
+
+.title-box > h1 {
+    text-align: center;
+    font-size: 2.2em;
+    font-weight: bold;
+}
+
+nav {
+    margin: 0 auto;
+    width: 400px;
+}
+
+.menu-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.menu-list > li {
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------- */
+
+
+main {
+    width: var(--centered-content-width);
+    margin: 0 auto 40px auto;
+    border-top: var(--main-border-style);
+}
+
+
+/* --------------------------------------------------- */
+
+
+/* COLONNA CENTRALE DEL CONTENUTO PRINCIPALE */
+
+#full-column {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+}
+
+#full-column > h3 {
+    padding: 20px 0;
+    float: left;
+    color: var(--link-hover-color);
+}
+
+.social {
+    float: left;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px 0;
+    position: absolute;
+    right: 0;
+}
+
+.social li {
+    margin: 0 2px;
+}
+
+.social img {
+    max-width: 25px;
+    cursor: pointer;
+}
+
+
+#full-column > h2 {
+    clear: both;
+    font-size: 2em;
+}
+
+#full-column > img {
+    max-width: 100%;
+    margin: 20px auto;
+}
+
+/* --------------------------------------------------- */
+
+
+/* WRAPPER PER LE DUE COLONNE SEPARATE */
+
+.columns-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/* --------------------------------------------------- */
+
+
+/* COLONNA SINISTRA DEL CONTENUTO PRINCIPALE */
+
+
+#column-1 {
+    width: 600px;
+}
+
+#column-1 h2 {
+    font-size: 1.4em;
+    border-bottom: var(--main-border-style);
+    padding-bottom: 20px;
+}
+
+#lista-ingredienti > li {
+    width: 300px;
+    float: left;
+    text-transform: lowercase;
+    padding: 15px;
+    font-size: 1.1em;
+    background-image: url('http://pw.netgroup.uniroma2.it/img/dot.png');
+    background-repeat: no-repeat;
+    background-position-x: left;
+    background-position-y: 24px;
+}
+
+#lista-ingredienti + h2 {
+    clear: both;
+}
+
+#sezione-commenti {
+    line-height: 20px;
+    font-size: 14px;
+}
+
+#sezione-commenti p {
+    padding-bottom: 0;
+}
+
+#sezione-commenti .commento {
+    padding: 25px 15px 25px 15px;
+    color: #3d3257;
+    background-color: #f8f6f9;
+}
+
+#sezione-commenti .risposta {
+    width: 575px;
+    margin-left: 25px;
+}
+
+#sezione-commenti .risposta .commento {
+    color: white;
+    background-color: #c76161;
+}
+
+/* --------------------------------------------------- */
+
+
+/* COLONNA DESTRA DEL CONTENUTO PRINCIPALE */
+
+
+#column-2 {
+    width: 300px;
+    margin: 20px 0 0 auto;
+}
+
+#column-2 > h3 {
+    font-size: 1.2em;
+    padding-bottom: 20px;
+}
+
+#column-2 > img {
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+#lista-altre-ricette > li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#lista-altre-ricette img {
+    border: var(--image-border-style);
+    margin: 10px 10px 10px 0;
+}
+
+
+/* --------------------------------------------------- */
+
+/* FOOTER STYLE */
+
+footer {
+    width: 100%;
+    background-color: var(--footer-background-color);
+    min-width: 944px;
+    color: var(--footer-text-color);
+}
+
+#footer-wrapper {
+    width: var(--centered-content-width);
+    margin: auto;
+}
+
+.footer-column {
+    float: left;
+    width: 33.3333%;
+    margin: 40px auto 20px auto;
+}
+
+.footer-column h3 {
+    color: #F5AF33;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+#newsletter {
+    clear: both;
+    width: var(--centered-content-width);
+    margin: 0 auto;
+    border-top: 1px solid var(--footer-text-color);
+    border-bottom: 1px solid var(--footer-text-color);
+    padding: 10px 0 10px 0;
+}
+
+#newsletter > h4 {
+    font-size: 1em;
+}
+
+#footer-line-validation {
+    width: var(--centered-content-width);
+    font-size: 0.8em;
+    margin: 0 auto;
+    position: relative;
+}
+
+#footer-line-validation img {
+    position: absolute;
+    right: 0;
+    top: 10px;
+}
+
+#footer-line-validation > a + a > img {
+    right: 98px;
+}
