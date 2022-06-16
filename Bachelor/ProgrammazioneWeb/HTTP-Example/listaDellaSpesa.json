@@ -1,0 +1,27 @@
+[
+    
+    {
+        "id": 1,
+        "prodotto": "pane", 
+        "desc": "500gr"
+    },
+
+    {
+        "id": 2,
+        "prodotto": "latte", 
+        "desc": "1 litro"
+    },
+
+    {
+        "id": 3,
+        "prodotto": "vino", 
+        "desc": "1 bottiglia"
+    },
+
+    {
+        "id": 4,
+        "prodotto": "biscotti", 
+        "desc": "2 pacchi"
+    }
+
+]
