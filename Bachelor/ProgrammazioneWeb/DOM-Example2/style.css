@@ -1,0 +1,40 @@
+* {
+    box-sizing: border-box;
+}
+
+header>h1, footer>p {
+    padding: 10px 0;
+    text-align: center;
+}
+
+.wrapper {
+    margin: 20px 0;
+    min-width: 400px;
+}
+
+main {
+    height: 80vw;
+}
+
+header, main, footer {
+    border: 1px solid black;
+}
+
+header, footer {
+    background-color: #f1f1f1;
+}
+
+/* Mobile-First */ 
+@media (min-width: 600px) {
+    body {
+        width: 500px;
+        margin: 0 auto;
+    }
+}
+
+@media (min-width: 1000px) {
+    body {
+        margin: 0 auto;
+        width: 800px;
+    }
+}
